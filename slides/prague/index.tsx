@@ -82,6 +82,7 @@ function ensureBrandAssets() {
   if (document.getElementById('prague-brand-fonts')) return;
   const style = document.createElement('style');
   style.id = 'prague-brand-fonts';
+  // Madrid Mallorca faces: Regular 400 + Bold covering 700–900 (heroes use 800).
   style.textContent = `
     @font-face {
       font-family: "Cursor Gothic";
@@ -93,7 +94,7 @@ function ensureBrandAssets() {
     @font-face {
       font-family: "Cursor Gothic";
       src: url("${cursorGothicBold}") format("truetype");
-      font-weight: 700;
+      font-weight: 700 900;
       font-style: normal;
       font-display: swap;
     }
@@ -101,6 +102,8 @@ function ensureBrandAssets() {
   `;
   document.head.appendChild(style);
 }
+
+ensureBrandAssets();
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -112,12 +115,6 @@ function usePrefersReducedMotion() {
     return () => mq.removeEventListener?.('change', onChange);
   }, []);
   return reduced;
-}
-
-function useBrandAssets() {
-  useEffect(() => {
-    ensureBrandAssets();
-  }, []);
 }
 
 const ScrambleText = ({
@@ -233,7 +230,6 @@ const Eyebrow = ({
 );
 
 const Footer = () => {
-  useBrandAssets();
   const { current, total } = useSlidePageNumber();
   return (
     <div
@@ -311,7 +307,6 @@ const AgendaRow = ({
 );
 
 const Opening: Page = () => {
-  useBrandAssets();
   const reduced = usePrefersReducedMotion();
   const fade = (delayMs: number): CSSProperties =>
     reduced
@@ -384,7 +379,6 @@ const Opening: Page = () => {
 };
 
 const Agenda: Page = () => {
-  useBrandAssets();
   return (
     <div
       style={{
