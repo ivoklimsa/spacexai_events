@@ -51,6 +51,7 @@ const mono =
   'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace';
 const muted = 'rgb(237 236 236 / 0.6)';
 const dim = 'rgb(237 236 236 / 0.32)';
+const panel = '#1b1913';
 const line = 'rgb(237 236 236 / 0.1)';
 const accentSoft = 'rgb(245 78 0 / 0.45)';
 const accentWash = 'rgb(245 78 0 / 0.12)';
@@ -451,4 +452,126 @@ const Agenda: Page = () => {
   );
 };
 
-export default [Opening, Agenda] satisfies Page[];
+const JuryCard = ({
+  n,
+  name,
+  role,
+  intro,
+}: {
+  n: string;
+  name: string;
+  role: string;
+  intro: string;
+}) => (
+  <div
+    style={{
+      position: 'relative',
+      background: panel,
+      border: `1px solid ${line}`,
+      borderRadius: 14,
+      padding: '32px 36px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14,
+      minHeight: 0,
+    }}
+  >
+    <Corners inset={12} />
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 18,
+        color: 'var(--osd-accent)',
+        letterSpacing: '0.14em',
+      }}
+    >
+      {n}
+    </span>
+    <span style={{ fontSize: 40, fontWeight: 700, lineHeight: 1.15 }}>
+      {name}
+    </span>
+    <span style={{ fontSize: 26, color: muted, lineHeight: 1.35 }}>{role}</span>
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 22,
+        color: 'var(--osd-accent)',
+        letterSpacing: '0.06em',
+        marginTop: 'auto',
+        paddingTop: 8,
+      }}
+    >
+      {intro}
+    </span>
+  </div>
+);
+
+const JURY = [
+  {
+    n: '01',
+    name: 'Daniel Hejl',
+    role: 'Co-founder & CAIO, Productboard',
+    intro: 'Hosts the room',
+  },
+  {
+    n: '02',
+    name: 'Ben King',
+    role: 'Product Engineer, incident.io',
+    intro: 'Loves Cursor CMD+K',
+  },
+  {
+    n: '03',
+    name: 'Petr Podrouzek',
+    role: 'CTO, IP Fabric',
+    intro: 'Scaled AI orgs',
+  },
+  {
+    n: '04',
+    name: 'Kate Douskova',
+    role: 'Pitch coach & advisor',
+    intro: 'Clear under pressure',
+  },
+] as const;
+
+const Jury: Page = () => (
+  <div
+    style={{
+      ...canvas,
+      padding: pad,
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={14} />
+    <Eyebrow>jury</Eyebrow>
+    <h2
+      style={{
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 58,
+        fontWeight: 800,
+        margin: '12px 0 28px',
+        lineHeight: 1.05,
+      }}
+    >
+      Who scores tonight.
+    </h2>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 28,
+        flex: 1,
+        maxWidth: 1680,
+        minHeight: 0,
+      }}
+    >
+      {JURY.map((person) => (
+        <JuryCard key={person.n} {...person} />
+      ))}
+    </div>
+    <Footer />
+  </div>
+);
+
+export default [Opening, Agenda, Jury] satisfies Page[];
