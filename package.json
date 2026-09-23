@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "sync:favicon": "node scripts/sync-favicon.mjs",
+    "predev": "node scripts/sync-favicon.mjs",
+    "prebuild": "node scripts/sync-favicon.mjs",
     "dev": "open-slide dev",
     "build": "open-slide build",
     "preview": "open-slide preview",
