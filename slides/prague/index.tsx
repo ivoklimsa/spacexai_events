@@ -431,22 +431,6 @@ const Agenda: Page = () => {
           accent
         />
       </div>
-      <div
-        style={{
-          marginTop: 20,
-          padding: '20px 28px',
-          borderRadius: 14,
-          maxWidth: 1680,
-          background: accentWash,
-          border: `1px solid ${accentSoft}`,
-        }}
-      >
-        <p style={{ fontSize: 28, lineHeight: 1.4, margin: 0, color: muted }}>
-          <span style={{ color: 'var(--osd-text)' }}>Venue:</span> Productboard
-          · Boudníkova 3, Praha 8 ·{' '}
-          <span style={{ color: 'var(--osd-text)' }}>luma.com/cursor-mljb</span>
-        </p>
-      </div>
       <Footer />
     </div>
   );
@@ -523,7 +507,7 @@ const JURY = [
     n: '03',
     name: 'Petr Podrouzek',
     role: 'CTO, IP Fabric',
-    intro: 'Scaled AI orgs',
+    intro: 'Finds security gaps',
   },
   {
     n: '04',
@@ -574,4 +558,245 @@ const Jury: Page = () => (
   </div>
 );
 
-export default [Opening, Agenda, Jury] satisfies Page[];
+const CREW = [
+  {
+    n: '01',
+    name: 'Dejan Lazeski',
+    role: 'SpaceXAI Ambassador',
+    intro: 'Ships solo ventures',
+  },
+  {
+    n: '02',
+    name: 'Chin Man Yeung',
+    role: 'Co-founder & CTO, Psymerge',
+    intro: 'Prague chapter lead',
+  },
+  {
+    n: '03',
+    name: 'Eleanor Menchú',
+    role: 'AI Product Designer, Uvicuo',
+    intro: 'Inclusive founder energy',
+  },
+  {
+    n: '04',
+    name: 'Kornel Dubieniecki',
+    role: 'Technical Lead, Kornel.me',
+    intro: 'Makes AI work',
+  },
+] as const;
+
+const Crew: Page = () => (
+  <div
+    style={{
+      ...canvas,
+      padding: pad,
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={14} />
+    <Eyebrow>crew</Eyebrow>
+    <h2
+      style={{
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 58,
+        fontWeight: 800,
+        margin: '12px 0 28px',
+        lineHeight: 1.05,
+      }}
+    >
+      SpaceXAI crew today.
+    </h2>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 28,
+        flex: 1,
+        maxWidth: 1680,
+        minHeight: 0,
+      }}
+    >
+      {CREW.map((person) => (
+        <JuryCard key={person.n} {...person} />
+      ))}
+    </div>
+    <Footer />
+  </div>
+);
+
+const SPONSORS = ['SpaceXAI', 'Productboard', 'incident.io'] as const;
+
+const Thanks: Page = () => (
+  <div
+    style={{
+      ...canvas,
+      padding: pad,
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={14} />
+    <Eyebrow>thanks</Eyebrow>
+    <h2
+      style={{
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 58,
+        fontWeight: 800,
+        margin: '12px 0 36px',
+        lineHeight: 1.05,
+      }}
+    >
+      Sponsors & venue care.
+    </h2>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: 28,
+        maxWidth: 1680,
+      }}
+    >
+      {SPONSORS.map((name, i) => (
+        <div
+          key={name}
+          style={{
+            position: 'relative',
+            background: panel,
+            border: `1px solid ${line}`,
+            borderRadius: 14,
+            padding: '40px 36px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            minHeight: 200,
+          }}
+        >
+          <Corners inset={12} />
+          <span
+            style={{
+              fontFamily: mono,
+              fontSize: 18,
+              color: 'var(--osd-accent)',
+              letterSpacing: '0.14em',
+            }}
+          >
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <span style={{ fontSize: 44, fontWeight: 700, lineHeight: 1.15 }}>
+            {name}
+          </span>
+          <span
+            style={{
+              fontFamily: mono,
+              fontSize: 22,
+              color: muted,
+              letterSpacing: '0.06em',
+              marginTop: 'auto',
+            }}
+          >
+            sponsor
+          </span>
+        </div>
+      ))}
+    </div>
+    <div
+      style={{
+        marginTop: 36,
+        padding: '28px 36px',
+        borderRadius: 14,
+        maxWidth: 1680,
+        background: accentWash,
+        border: `1px solid ${accentSoft}`,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: 18,
+          color: 'var(--osd-accent)',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+        }}
+      >
+        kudos
+      </span>
+      <span style={{ fontSize: 40, fontWeight: 700, lineHeight: 1.2 }}>
+        Kateřina Kolářová
+      </span>
+      <span style={{ fontSize: 28, color: muted, lineHeight: 1.4 }}>
+        Taking care of us at Productboard
+      </span>
+    </div>
+    <Footer />
+  </div>
+);
+
+const CRITERIA = [
+  {
+    n: '01',
+    label: 'Demo that works',
+    sub: 'Something real on stage, not a slide',
+  },
+  {
+    n: '02',
+    label: 'Built with velocity',
+    sub: 'Cursor-powered shipping in one sprint',
+  },
+  {
+    n: '03',
+    label: 'Crowd wow factor',
+    sub: 'Jury + room energy decides the cut',
+  },
+] as const;
+
+const Judging: Page = () => (
+  <div
+    style={{
+      ...canvas,
+      padding: pad,
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={14} />
+    <Eyebrow>judging</Eyebrow>
+    <h2
+      style={{
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 58,
+        fontWeight: 800,
+        margin: '12px 0 28px',
+        lineHeight: 1.05,
+      }}
+    >
+      How we pick Top 3.
+    </h2>
+    <div style={{ flex: 1, maxWidth: 1680 }}>
+      {CRITERIA.map((item) => (
+        <AgendaRow key={item.n} time={item.n} label={item.label} sub={item.sub} />
+      ))}
+    </div>
+    <p
+      style={{
+        fontFamily: mono,
+        fontSize: 24,
+        color: muted,
+        letterSpacing: '0.06em',
+        margin: '24px 0 0',
+        maxWidth: 1680,
+      }}
+    >
+      Jury scores · Top 3 take prizes
+    </p>
+    <Footer />
+  </div>
+);
+
+export default [Opening, Agenda, Jury, Crew, Thanks, Judging] satisfies Page[];
