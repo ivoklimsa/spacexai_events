@@ -411,7 +411,7 @@ const Agenda: Page = () => {
         />
         <AgendaRow
           time="13:00"
-          label="Kickoff & Team Formation"
+          label="Kickoff"
           sub="Briefing, theme, find your teammates"
         />
         <AgendaRow
