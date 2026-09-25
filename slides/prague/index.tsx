@@ -1,7 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import {
-  Step,
-  Steps,
   type DesignSystem,
   type Page,
   type SlideMeta,
@@ -77,6 +75,22 @@ const MOTION_CSS = `
 @keyframes pragueFadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pragueBracketIn {
+  from { opacity: 0; transform: translateX(-28px) scale(0.96); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes pragueConnectorIn {
+  from { opacity: 0; transform: scaleX(0.4); }
+  to { opacity: 0.7; transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .prague-bracket-stage,
+  .prague-bracket-connector {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 `;
 
@@ -795,9 +809,10 @@ const FORMAT_STAGES = [
   },
 ] as const;
 
-const BracketConnector = () => (
+const BracketConnector = ({ delayMs }: { delayMs: number }) => (
   <div
     aria-hidden
+    className="prague-bracket-connector"
     style={{
       display: 'flex',
       alignItems: 'center',
@@ -805,7 +820,10 @@ const BracketConnector = () => (
       width: '100%',
       height: '100%',
       color: 'var(--osd-accent)',
-      opacity: 0.7,
+      opacity: 0,
+      transformOrigin: 'left center',
+      animation: 'pragueConnectorIn 0.45s cubic-bezier(0,0,0.2,1) both',
+      animationDelay: `${delayMs}ms`,
     }}
   >
     <svg width="28" height="28" viewBox="0 0 28 28">
@@ -827,14 +845,17 @@ const FormatStage = ({
   chipLabel,
   label,
   body,
+  delayMs,
 }: {
   n: string;
   chip: string;
   chipLabel: string;
   label: string;
   body: string;
+  delayMs: number;
 }) => (
   <div
+    className="prague-bracket-stage"
     style={{
       position: 'relative',
       flex: 1,
@@ -849,6 +870,9 @@ const FormatStage = ({
       minHeight: 420,
       height: '100%',
       boxSizing: 'border-box',
+      opacity: 0,
+      animation: 'pragueBracketIn 0.55s cubic-bezier(0,0,0.2,1) both',
+      animationDelay: `${delayMs}ms`,
     }}
   >
     <Corners inset={10} />
@@ -944,29 +968,13 @@ const Format: Page = () => (
         minHeight: 0,
       }}
     >
-      <Steps>
-        <Step>
-          <FormatStage {...FORMAT_STAGES[0]} />
-        </Step>
-        <Step>
-          <BracketConnector />
-        </Step>
-        <Step>
-          <FormatStage {...FORMAT_STAGES[1]} />
-        </Step>
-        <Step>
-          <BracketConnector />
-        </Step>
-        <Step>
-          <FormatStage {...FORMAT_STAGES[2]} />
-        </Step>
-        <Step>
-          <BracketConnector />
-        </Step>
-        <Step>
-          <FormatStage {...FORMAT_STAGES[3]} />
-        </Step>
-      </Steps>
+      <FormatStage {...FORMAT_STAGES[0]} delayMs={120} />
+      <BracketConnector delayMs={320} />
+      <FormatStage {...FORMAT_STAGES[1]} delayMs={420} />
+      <BracketConnector delayMs={620} />
+      <FormatStage {...FORMAT_STAGES[2]} delayMs={720} />
+      <BracketConnector delayMs={920} />
+      <FormatStage {...FORMAT_STAGES[3]} delayMs={1020} />
     </div>
     <div
       style={{
@@ -976,7 +984,11 @@ const Format: Page = () => (
         maxWidth: 1680,
         background: accentWash,
         border: `1px solid ${accentSoft}`,
+        opacity: 0,
+        animation: 'pragueFadeUp 0.5s cubic-bezier(0,0,0.2,1) both',
+        animationDelay: '1200ms',
       }}
+      className="prague-bracket-stage"
     >
       <p style={{ fontSize: 28, lineHeight: 1.4, margin: 0, color: muted }}>
         <span style={{ color: 'var(--osd-text)' }}>
