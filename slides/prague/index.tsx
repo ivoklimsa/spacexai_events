@@ -559,31 +559,55 @@ const Jury: Page = () => (
 );
 
 const CREW = [
-  {
-    n: '01',
-    name: 'Dejan Lazeski',
-    role: 'SpaceXAI Ambassador',
-    intro: 'Ships solo ventures',
-  },
-  {
-    n: '02',
-    name: 'Chin Man Yeung',
-    role: 'Co-founder & CTO, Psymerge',
-    intro: 'Prague chapter lead',
-  },
-  {
-    n: '03',
-    name: 'Eleanor Menchú',
-    role: 'AI Product Designer, Uvicuo',
-    intro: 'Inclusive founder energy',
-  },
-  {
-    n: '04',
-    name: 'Kornel Dubieniecki',
-    role: 'Technical Lead, Kornel.me',
-    intro: 'Makes AI work',
-  },
+  { n: '01', name: 'Ivo Klimša' },
+  { n: '02', name: 'Dejan Lazeski' },
+  { n: '03', name: 'Chin Man Yeung' },
+  { n: '04', name: 'Eleanor Menchú' },
+  { n: '05', name: 'Kornel Dubieniecki' },
 ] as const;
+
+const CrewCard = ({ n, name }: { n: string; name: string }) => (
+  <div
+    style={{
+      position: 'relative',
+      background: panel,
+      border: `1px solid ${line}`,
+      borderRadius: 14,
+      padding: '28px 32px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+      minHeight: 0,
+    }}
+  >
+    <Corners inset={12} />
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 18,
+        color: 'var(--osd-accent)',
+        letterSpacing: '0.14em',
+      }}
+    >
+      {n}
+    </span>
+    <span style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15 }}>
+      {name}
+    </span>
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 20,
+        color: 'var(--osd-accent)',
+        letterSpacing: '0.06em',
+        marginTop: 'auto',
+        paddingTop: 8,
+      }}
+    >
+      SpaceXAI Ambassador
+    </span>
+  </div>
+);
 
 const Crew: Page = () => (
   <div
@@ -611,15 +635,16 @@ const Crew: Page = () => (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 28,
+        gridTemplateColumns: '1fr 1fr 1fr',
+        gap: 24,
         flex: 1,
         maxWidth: 1680,
         minHeight: 0,
+        alignContent: 'start',
       }}
     >
       {CREW.map((person) => (
-        <JuryCard key={person.n} {...person} />
+        <CrewCard key={person.n} {...person} />
       ))}
     </div>
     <Footer />
