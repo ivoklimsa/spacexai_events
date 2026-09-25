@@ -1,5 +1,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import {
+  Step,
+  Steps,
   type DesignSystem,
   type Page,
   type SlideMeta,
@@ -762,25 +764,253 @@ const Thanks: Page = () => (
   </div>
 );
 
-const CRITERIA = [
+const FORMAT_STAGES = [
   {
     n: '01',
-    label: 'Demo that works',
-    sub: 'Something real on stage, not a slide',
+    chip: '4',
+    chipLabel: 'groups',
+    label: 'Group round',
+    body: '4 groups · 1 judge each · 1 min per project',
   },
   {
     n: '02',
-    label: 'Built with velocity',
-    sub: 'Cursor-powered shipping in one sprint',
+    chip: '3',
+    chipLabel: 'each',
+    label: 'Shortlist',
+    body: 'Each judge picks top 3 → 12 finalists',
   },
   {
     n: '03',
-    label: 'Crowd wow factor',
-    sub: 'Jury + room energy decides the cut',
+    chip: '12',
+    chipLabel: 'finalists',
+    label: 'Final round',
+    body: 'Present to everyone · 2 min incl. pitch + questions',
+  },
+  {
+    n: '04',
+    chip: '3',
+    chipLabel: 'winners',
+    label: 'Winners',
+    body: 'Full jury scores → 1st / 2nd / 3rd',
   },
 ] as const;
 
-const Judging: Page = () => (
+const BracketConnector = () => (
+  <div
+    aria-hidden
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+      color: 'var(--osd-accent)',
+      opacity: 0.7,
+    }}
+  >
+    <svg width="28" height="28" viewBox="0 0 28 28">
+      <path
+        d="M6 14 H20 M14 8 L20 14 L14 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  </div>
+);
+
+const FormatStage = ({
+  n,
+  chip,
+  chipLabel,
+  label,
+  body,
+}: {
+  n: string;
+  chip: string;
+  chipLabel: string;
+  label: string;
+  body: string;
+}) => (
+  <div
+    style={{
+      position: 'relative',
+      flex: 1,
+      minWidth: 0,
+      background: panel,
+      border: `1px solid ${line}`,
+      borderRadius: 14,
+      padding: '28px 24px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14,
+      minHeight: 420,
+      height: '100%',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={10} />
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 16,
+        color: 'var(--osd-accent)',
+        letterSpacing: '0.14em',
+      }}
+    >
+      {n}
+    </span>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 6,
+        margin: '8px 0 4px',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: 64,
+          fontWeight: 700,
+          lineHeight: 1,
+          color: 'var(--osd-accent)',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        {chip}
+      </span>
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: 18,
+          color: muted,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+        }}
+      >
+        {chipLabel}
+      </span>
+    </div>
+    <span style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.2 }}>
+      {label}
+    </span>
+    <span
+      style={{
+        fontSize: 22,
+        color: muted,
+        lineHeight: 1.4,
+        marginTop: 'auto',
+      }}
+    >
+      {body}
+    </span>
+  </div>
+);
+
+const Format: Page = () => (
+  <div
+    style={{
+      ...canvas,
+      padding: pad,
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    }}
+  >
+    <Corners inset={14} />
+    <Eyebrow>the format</Eyebrow>
+    <h2
+      style={{
+        fontFamily: 'var(--osd-font-display)',
+        fontSize: 52,
+        fontWeight: 800,
+        margin: '12px 0 28px',
+        lineHeight: 1.05,
+      }}
+    >
+      Four groups. Twelve finalists. Three winners.
+    </h2>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 36px 1fr 36px 1fr 36px 1fr',
+        alignItems: 'stretch',
+        flex: 1,
+        maxWidth: 1680,
+        minHeight: 0,
+      }}
+    >
+      <Steps>
+        <Step>
+          <FormatStage {...FORMAT_STAGES[0]} />
+        </Step>
+        <Step>
+          <BracketConnector />
+        </Step>
+        <Step>
+          <FormatStage {...FORMAT_STAGES[1]} />
+        </Step>
+        <Step>
+          <BracketConnector />
+        </Step>
+        <Step>
+          <FormatStage {...FORMAT_STAGES[2]} />
+        </Step>
+        <Step>
+          <BracketConnector />
+        </Step>
+        <Step>
+          <FormatStage {...FORMAT_STAGES[3]} />
+        </Step>
+      </Steps>
+    </div>
+    <div
+      style={{
+        marginTop: 28,
+        padding: '22px 32px',
+        borderRadius: 14,
+        maxWidth: 1680,
+        background: accentWash,
+        border: `1px solid ${accentSoft}`,
+      }}
+    >
+      <p style={{ fontSize: 28, lineHeight: 1.4, margin: 0, color: muted }}>
+        <span style={{ color: 'var(--osd-text)' }}>
+          Show the product working.
+        </span>{' '}
+        Make the problem and value clear.
+      </p>
+    </div>
+    <Footer />
+  </div>
+);
+
+const SCORE_ROWS = [
+  {
+    n: '01',
+    label: 'Execution',
+    question: 'Does it work? What was actually built?',
+    weight: '1–5 × 2',
+  },
+  {
+    n: '02',
+    label: 'Usefulness',
+    question: 'Is the problem real, and would someone use this?',
+    weight: '1–5 × 1',
+  },
+  {
+    n: '03',
+    label: 'Clarity',
+    question: 'Can we understand the demo and why it matters?',
+    weight: '1–5 × 1',
+  },
+] as const;
+
+const Scoring: Page = () => (
   <div
     style={{
       ...canvas,
@@ -801,27 +1031,102 @@ const Judging: Page = () => (
         lineHeight: 1.05,
       }}
     >
-      How we pick Top 3.
+      Working product first.
     </h2>
-    <div style={{ flex: 1, maxWidth: 1680 }}>
-      {CRITERIA.map((item) => (
-        <AgendaRow key={item.n} time={item.n} label={item.label} sub={item.sub} />
+    <div style={{ flex: 1, maxWidth: 1680, minHeight: 0 }}>
+      {SCORE_ROWS.map((row) => (
+        <div
+          key={row.n}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '220px 1fr 200px',
+            gap: 28,
+            alignItems: 'baseline',
+            padding: '26px 0',
+            borderBottom: `1px solid ${line}`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: mono,
+              fontSize: 22,
+              color: 'var(--osd-accent)',
+              letterSpacing: '0.06em',
+            }}
+          >
+            {row.n} · {row.label}
+          </span>
+          <span style={{ fontSize: 32, fontWeight: 700, lineHeight: 1.25 }}>
+            {row.question}
+          </span>
+          <span
+            style={{
+              fontFamily: mono,
+              fontSize: 28,
+              color: 'var(--osd-accent)',
+              letterSpacing: '0.04em',
+              textAlign: 'right',
+            }}
+          >
+            {row.weight}
+          </span>
+        </div>
       ))}
+      <div
+        style={{
+          marginTop: 32,
+          padding: '24px 32px',
+          borderRadius: 14,
+          background: accentWash,
+          border: `1px solid ${accentSoft}`,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: mono,
+            fontSize: 28,
+            lineHeight: 1.4,
+            margin: 0,
+            color: 'var(--osd-text)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          Total = (Execution × 2) + Usefulness + Clarity · Max 20
+        </p>
+      </div>
+      <p
+        style={{
+          fontSize: 26,
+          color: muted,
+          margin: '22px 0 0',
+          lineHeight: 1.4,
+        }}
+      >
+        Working focused tool ·{' '}
+        <span style={{ color: 'var(--osd-text)' }}>4×2 + 4 + 5 = 17/20</span>
+      </p>
+      <p
+        style={{
+          fontFamily: mono,
+          fontSize: 20,
+          color: dim,
+          margin: '18px 0 0',
+          letterSpacing: '0.06em',
+        }}
+      >
+        1 missing · 3 solid · 5 standout
+      </p>
     </div>
-    <p
-      style={{
-        fontFamily: mono,
-        fontSize: 24,
-        color: muted,
-        letterSpacing: '0.06em',
-        margin: '24px 0 0',
-        maxWidth: 1680,
-      }}
-    >
-      Jury scores · Top 3 take prizes
-    </p>
     <Footer />
   </div>
 );
 
-export default [Opening, Agenda, Jury, Crew, Thanks, Judging] satisfies Page[];
+export default [
+  Opening,
+  Agenda,
+  Jury,
+  Crew,
+  Thanks,
+  Format,
+  Scoring,
+] satisfies Page[];
