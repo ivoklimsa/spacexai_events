@@ -559,11 +559,11 @@ const Jury: Page = () => (
 );
 
 const CREW = [
-  { n: '01', name: 'Ivo Klimša' },
+  { n: '01', name: 'Eleanor Menchú' },
   { n: '02', name: 'Dejan Lazeski' },
   { n: '03', name: 'Chin Man Yeung' },
-  { n: '04', name: 'Eleanor Menchú' },
-  { n: '05', name: 'Kornel Dubieniecki' },
+  { n: '04', name: 'Kornel Dubieniecki' },
+  { n: '05', name: 'Ivo Klimša' },
 ] as const;
 
 const CrewCard = ({ n, name }: { n: string; name: string }) => (
