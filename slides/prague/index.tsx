@@ -8,9 +8,13 @@ import {
 } from '@open-slide/core';
 import cursorGothicBold from './assets/CursorGothic-Bold.ttf';
 import cursorGothicRegular from './assets/CursorGothic-Regular.ttf';
+import chinLiQr from './assets/chin-li-qr.svg';
+import chinXQr from './assets/chin-x-qr.svg';
 import dejanLiQr from './assets/dejan-li-qr.svg';
 import dejanXQr from './assets/dejan-x-qr.svg';
 import ivoLiQr from './assets/ivo-li-qr.svg';
+import kornelLiQr from './assets/kornel-li-qr.svg';
+import kornelXQr from './assets/kornel-x-qr.svg';
 
 export const design: DesignSystem = {
   palette: { bg: '#14120b', text: '#edecec', accent: '#f54e00' },
@@ -597,8 +601,30 @@ const CREW: {
       },
     ],
   },
-  { n: '03', name: 'Chin Man Yeung' },
-  { n: '04', name: 'Kornel Dubieniecki' },
+  {
+    n: '03',
+    name: 'Chin Man Yeung',
+    links: [
+      { label: 'X', src: chinXQr, href: 'https://x.com/busyxin' },
+      {
+        label: 'LI',
+        src: chinLiQr,
+        href: 'https://www.linkedin.com/in/cmyeung',
+      },
+    ],
+  },
+  {
+    n: '04',
+    name: 'Kornel Dubieniecki',
+    links: [
+      { label: 'X', src: kornelXQr, href: 'https://x.com/lekterable' },
+      {
+        label: 'LI',
+        src: kornelLiQr,
+        href: 'https://www.linkedin.com/in/lekterable',
+      },
+    ],
+  },
   {
     n: '05',
     name: 'Ivo Klimša',
