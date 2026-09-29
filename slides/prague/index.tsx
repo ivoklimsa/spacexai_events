@@ -12,6 +12,7 @@ import chinLiQr from './assets/chin-li-qr.svg';
 import chinXQr from './assets/chin-x-qr.svg';
 import dejanLiQr from './assets/dejan-li-qr.svg';
 import dejanXQr from './assets/dejan-x-qr.svg';
+import eleanorLiQr from './assets/eleanor-li-qr.svg';
 import ivoLiQr from './assets/ivo-li-qr.svg';
 import kornelLiQr from './assets/kornel-li-qr.svg';
 import kornelXQr from './assets/kornel-x-qr.svg';
@@ -588,7 +589,18 @@ const CREW: {
   name: string;
   links?: CrewLink[];
 }[] = [
-  { n: '01', name: 'Eleanor Menchú' },
+  {
+    n: '01',
+    name: 'Eleanor Menchú',
+    links: [
+      {
+        label: 'LI',
+        src: eleanorLiQr,
+        href: 'https://www.linkedin.com/in/eleanormm2/',
+      },
+    ],
+  },
+
   {
     n: '02',
     name: 'Dejan Lazeski',
