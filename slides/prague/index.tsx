@@ -8,6 +8,9 @@ import {
 } from '@open-slide/core';
 import cursorGothicBold from './assets/CursorGothic-Bold.ttf';
 import cursorGothicRegular from './assets/CursorGothic-Regular.ttf';
+import dejanLiQr from './assets/dejan-li-qr.svg';
+import dejanXQr from './assets/dejan-x-qr.svg';
+import ivoLiQr from './assets/ivo-li-qr.svg';
 
 export const design: DesignSystem = {
   palette: { bg: '#14120b', text: '#edecec', accent: '#f54e00' },
@@ -574,15 +577,95 @@ const Jury: Page = () => (
   </div>
 );
 
-const CREW = [
+type CrewLink = { label: string; src: string; href: string };
+
+const CREW: {
+  n: string;
+  name: string;
+  links?: CrewLink[];
+}[] = [
   { n: '01', name: 'Eleanor Menchú' },
-  { n: '02', name: 'Dejan Lazeski' },
+  {
+    n: '02',
+    name: 'Dejan Lazeski',
+    links: [
+      { label: 'X', src: dejanXQr, href: 'https://x.com/lazeskid' },
+      {
+        label: 'LI',
+        src: dejanLiQr,
+        href: 'https://www.linkedin.com/in/dejanlazeski/',
+      },
+    ],
+  },
   { n: '03', name: 'Chin Man Yeung' },
   { n: '04', name: 'Kornel Dubieniecki' },
-  { n: '05', name: 'Ivo Klimša' },
-] as const;
+  {
+    n: '05',
+    name: 'Ivo Klimša',
+    links: [
+      {
+        label: 'LI',
+        src: ivoLiQr,
+        href: 'https://www.linkedin.com/in/ivoklimsa',
+      },
+    ],
+  },
+];
 
-const CrewCard = ({ n, name }: { n: string; name: string }) => (
+const CrewQr = ({
+  label,
+  src,
+  href,
+  size = 112,
+}: CrewLink & { size?: number }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 6,
+    }}
+  >
+    <div
+      style={{
+        width: size,
+        height: size,
+        padding: 6,
+        boxSizing: 'border-box',
+        background: '#edecec',
+        borderRadius: 8,
+      }}
+    >
+      <img
+        src={src}
+        alt={`${label} QR — ${href}`}
+        width={size - 12}
+        height={size - 12}
+        style={{ display: 'block', width: '100%', height: '100%' }}
+      />
+    </div>
+    <span
+      style={{
+        fontFamily: mono,
+        fontSize: 14,
+        color: muted,
+        letterSpacing: '0.1em',
+      }}
+    >
+      {label}
+    </span>
+  </div>
+);
+
+const CrewCard = ({
+  n,
+  name,
+  links,
+}: {
+  n: string;
+  name: string;
+  links?: CrewLink[];
+}) => (
   <div
     style={{
       position: 'relative',
@@ -591,37 +674,68 @@ const CrewCard = ({ n, name }: { n: string; name: string }) => (
       borderRadius: 14,
       padding: '28px 32px',
       display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      minHeight: 0,
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      gap: 20,
+      minHeight: links?.length ? 196 : 0,
     }}
   >
     <Corners inset={12} />
-    <span
+    <div
       style={{
-        fontFamily: mono,
-        fontSize: 18,
-        color: 'var(--osd-accent)',
-        letterSpacing: '0.14em',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        flex: 1,
+        minWidth: 0,
       }}
     >
-      {n}
-    </span>
-    <span style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.15 }}>
-      {name}
-    </span>
-    <span
-      style={{
-        fontFamily: mono,
-        fontSize: 20,
-        color: 'var(--osd-accent)',
-        letterSpacing: '0.06em',
-        marginTop: 'auto',
-        paddingTop: 8,
-      }}
-    >
-      SpaceXAI Ambassador
-    </span>
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: 18,
+          color: 'var(--osd-accent)',
+          letterSpacing: '0.14em',
+        }}
+      >
+        {n}
+      </span>
+      <span style={{ fontSize: 34, fontWeight: 700, lineHeight: 1.15 }}>
+        {name}
+      </span>
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: 20,
+          color: 'var(--osd-accent)',
+          letterSpacing: '0.06em',
+          marginTop: 'auto',
+          paddingTop: 8,
+        }}
+      >
+        SpaceXAI Ambassador
+      </span>
+    </div>
+    {links?.length ? (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 14,
+          flexShrink: 0,
+          marginLeft: 'auto',
+        }}
+      >
+        {links.map((link) => (
+          <CrewQr
+            key={link.label + link.href}
+            {...link}
+            size={links.length > 1 ? 104 : 120}
+          />
+        ))}
+      </div>
+    ) : null}
   </div>
 );
 
