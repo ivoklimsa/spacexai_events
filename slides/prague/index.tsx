@@ -1133,6 +1133,235 @@ const Scoring: Page = () => (
   </div>
 );
 
+
+const PROJECT_CHECKIN_URL = 'https://spacexai-checkin.vercel.app/project';
+
+const PROJECT_CHECKIN_QR = [
+  '0000000000000000000000000000000000000',
+  '0000000000000000000000000000000000000',
+  '0011111110000110001011111100111111100',
+  '0010000010000110011010110000100000100',
+  '0010111010110110100001011000101110100',
+  '0010111010111000010010010010101110100',
+  '0010111010110000111100101000101110100',
+  '0010000010101010100111010110100000100',
+  '0011111110101010101010101010111111100',
+  '0000000000110100101001110100000000000',
+  '0010111110010011100101001110111110000',
+  '0010111100100001001111100100110111100',
+  '0011001010111101110100101001101011000',
+  '0001100000100111000110100111101111000',
+  '0001100010001010111000111011011100000',
+  '0010111101100110010110010010100011100',
+  '0010011011100001111010110011111011000',
+  '0011000100110100010000011001110110000',
+  '0001110010001010011100001011011100100',
+  '0010000100100001101011110101110110100',
+  '0000100011100110011010010000111011000',
+  '0000111000100010011000011010111110100',
+  '0001101010111100010011010001001101100',
+  '0010110101000100011100101100100010100',
+  '0010011111000111100101010000010011000',
+  '0010011100110101101011111111110011100',
+  '0010010010111101100111000011111000100',
+  '0000000000100010001111100010001010100',
+  '0011111110001011010100101110101010000',
+  '0010000010110011001111000110001110000',
+  '0010111010101100011000111011111101100',
+  '0010111010101101110110000011001100100',
+  '0010111010100101011100111011110100000',
+  '0010000010001100110010011001001110000',
+  '0011111110111101011100001111010101000',
+  '0000000000000000000000000000000000000',
+  '0000000000000000000000000000000000000',
+] as const;
+
+const ScrambleQR = ({
+  matrix,
+  delay = 200,
+  size = 520,
+}: {
+  matrix: readonly string[];
+  delay?: number;
+  size?: number;
+}) => {
+  const reduced = usePrefersReducedMotion();
+  const n = matrix.length;
+  const total = n * n;
+  const [revealed, setRevealed] = useState(reduced ? total : 0);
+  const [noise, setNoise] = useState<boolean[]>(() =>
+    Array.from({ length: total }, () => Math.random() > 0.5),
+  );
+
+  useEffect(() => {
+    if (reduced) {
+      setRevealed(total);
+      return;
+    }
+    setRevealed(0);
+    let tick = 0;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const timeout = setTimeout(() => {
+      interval = setInterval(() => {
+        tick += 1;
+        setNoise(Array.from({ length: total }, () => Math.random() > 0.45));
+        setRevealed(Math.floor((tick / 22) * total));
+        if (tick >= 22) {
+          clearInterval(interval);
+          setRevealed(total);
+        }
+      }, 28);
+    }, delay);
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
+  }, [delay, reduced, total]);
+
+  const cell = size / n;
+
+  return (
+    <div
+      role="img"
+      aria-label={`QR code linking to ${PROJECT_CHECKIN_URL}`}
+      style={{
+        width: size,
+        height: size,
+        background: '#edecec',
+        position: 'relative',
+        borderRadius: 8,
+        overflow: 'hidden',
+      }}
+    >
+      {matrix.map((row, y) =>
+        row.split('').map((bit, x) => {
+          const idx = y * n + x;
+          const locked = idx < revealed;
+          const on = locked ? bit === '1' : noise[idx];
+          return (
+            <div
+              key={`${x}-${y}`}
+              style={{
+                position: 'absolute',
+                left: x * cell,
+                top: y * cell,
+                width: cell,
+                height: cell,
+                background: on ? '#14120b' : 'transparent',
+              }}
+            />
+          );
+        }),
+      )}
+    </div>
+  );
+};
+
+const CheckIn: Page = () => {
+  const reduced = usePrefersReducedMotion();
+  const fade = (delayMs: number): CSSProperties =>
+    reduced
+      ? {}
+      : {
+          animation: 'pragueFadeUp 0.55s cubic-bezier(0,0,0.2,1) both',
+          animationDelay: `${delayMs}ms`,
+        };
+
+  return (
+    <div
+      style={{
+        ...canvas,
+        padding: pad,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Corners inset={14} />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 620px',
+          gap: 72,
+          flex: 1,
+          maxWidth: 1680,
+          minHeight: 0,
+          alignItems: 'center',
+        }}
+      >
+        <div>
+          <Eyebrow>submit</Eyebrow>
+          <h2
+            style={{
+              fontFamily: 'var(--osd-font-display)',
+              fontSize: 64,
+              fontWeight: 800,
+              margin: '16px 0 0',
+              lineHeight: 1.05,
+              letterSpacing: '-0.02em',
+            }}
+          >
+            <ScrambleText text="Add your project" delay={200} />
+            <br />
+            <ScrambleText text="Scan to check in" delay={480} />
+          </h2>
+          <p
+            style={{
+              fontSize: 30,
+              color: muted,
+              marginTop: 36,
+              lineHeight: 1.45,
+              maxWidth: 720,
+              ...fade(900),
+            }}
+          >
+            One scan. Drop your project link for tonight.
+            <br />
+            <span
+              style={{
+                fontFamily: mono,
+                fontSize: 24,
+                color: 'var(--osd-text)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              spacexai-checkin.vercel.app/project
+            </span>
+          </p>
+        </div>
+        <div
+          style={{
+            position: 'relative',
+            background: panel,
+            border: `1px solid ${line}`,
+            borderRadius: 14,
+            padding: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 640,
+            ...fade(400),
+          }}
+        >
+          <Corners inset={14} color={accentSoft} />
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 12,
+              background: accentWash,
+              border: `1px solid ${accentSoft}`,
+            }}
+          >
+            <ScrambleQR matrix={PROJECT_CHECKIN_QR} delay={200} size={520} />
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+
 export default [
   Opening,
   Agenda,
@@ -1141,4 +1370,5 @@ export default [
   Thanks,
   Format,
   Scoring,
+  CheckIn,
 ] satisfies Page[];
