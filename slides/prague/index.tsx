@@ -1514,6 +1514,379 @@ const CheckIn: Page = () => {
 };
 
 
+/** Wall-clock parts in Europe/Prague for a given instant. */
+function pragueParts(date: Date) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Europe/Prague',
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+      .formatToParts(date)
+      .filter((p) => p.type !== 'literal')
+      .map((p) => [p.type, p.value]),
+  ) as Record<string, string>;
+  return {
+    year: Number(parts.year),
+    month: Number(parts.month),
+    day: Number(parts.day),
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+    second: Number(parts.second),
+  };
+}
+
+/** UTC ms for a civil date/time interpreted in Europe/Prague. */
+function pragueLocalToUtcMs(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+  second: number,
+) {
+  const desiredAsUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+  let utc = desiredAsUtc;
+  for (let i = 0; i < 4; i += 1) {
+    const p = pragueParts(new Date(utc));
+    const asUtc = Date.UTC(
+      p.year,
+      p.month - 1,
+      p.day,
+      p.hour,
+      p.minute,
+      p.second,
+    );
+    utc += desiredAsUtc - asUtc;
+  }
+  return utc;
+}
+
+function pragueSixPmTodayMs(now = Date.now()) {
+  const p = pragueParts(new Date(now));
+  return pragueLocalToUtcMs(p.year, p.month, p.day, 18, 0, 0);
+}
+
+function clamp01(n: number) {
+  return Math.min(1, Math.max(0, n));
+}
+
+/** SVG polar helper: 0° = 3 o'clock, clockwise positive (CSS/SVG). */
+function polar(cx: number, cy: number, r: number, deg: number) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+/** Arc path from startDeg → endDeg (degrees, SVG), sweeping clockwise. */
+function arcPath(
+  cx: number,
+  cy: number,
+  r: number,
+  startDeg: number,
+  endDeg: number,
+) {
+  let sweep = endDeg - startDeg;
+  while (sweep < 0) sweep += 360;
+  while (sweep >= 360) sweep -= 360;
+  if (sweep < 0.05) return '';
+  const start = polar(cx, cy, r, startDeg);
+  const end = polar(cx, cy, r, endDeg);
+  // Nearly-full circle: split so SVG large-arc works
+  if (sweep > 359.5) {
+    const mid = polar(cx, cy, r, startDeg + 180);
+    return `M ${start.x} ${start.y} A ${r} ${r} 0 1 1 ${mid.x} ${mid.y} A ${r} ${r} 0 1 1 ${end.x} ${end.y}`;
+  }
+  const large = sweep > 180 ? 1 : 0;
+  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 1 ${end.x} ${end.y}`;
+}
+
+// 6 o'clock on SVG clock face (end of sprint)
+const COUNTDOWN_END_DEG = 90;
+
+const CountdownDial = ({
+  fraction,
+  running,
+}: {
+  fraction: number;
+  running: boolean;
+}) => {
+  const size = 680;
+  const cx = size / 2;
+  const cy = size / 2;
+  const rTrack = 280;
+  const rTicks = 300;
+  const f = clamp01(fraction);
+  // Remaining arc ends at 18:00 mark; length = fraction of full circle
+  const startDeg = COUNTDOWN_END_DEG - f * 360;
+  const endDeg = COUNTDOWN_END_DEG;
+  const tip = polar(cx, cy, rTrack, startDeg);
+  const accentPath = arcPath(cx, cy, rTrack, startDeg, endDeg);
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      aria-hidden
+      style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+    >
+      {/* Background track */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={rTrack}
+        fill="none"
+        stroke={line}
+        strokeWidth={18}
+      />
+      {/* 12 hour ticks — no numerals */}
+      {Array.from({ length: 12 }, (_, i) => {
+        // 12 at top = -90°
+        const deg = -90 + i * 30;
+        const outer = polar(cx, cy, rTicks, deg);
+        const inner = polar(cx, cy, rTicks - (i % 3 === 0 ? 28 : 16), deg);
+        return (
+          <line
+            key={i}
+            x1={inner.x}
+            y1={inner.y}
+            x2={outer.x}
+            y2={outer.y}
+            stroke={i === 6 ? 'var(--osd-accent)' : dim}
+            strokeWidth={i % 3 === 0 ? 4 : 2.5}
+            strokeLinecap="round"
+          />
+        );
+      })}
+      {/* Remaining arc */}
+      {accentPath ? (
+        <path
+          d={accentPath}
+          fill="none"
+          stroke="var(--osd-accent)"
+          strokeWidth={18}
+          strokeLinecap="round"
+          opacity={running || f > 0 ? 1 : 0.35}
+        />
+      ) : null}
+      {/* End mark at 6 o'clock */}
+      <circle
+        cx={polar(cx, cy, rTrack, COUNTDOWN_END_DEG).x}
+        cy={polar(cx, cy, rTrack, COUNTDOWN_END_DEG).y}
+        r={8}
+        fill="var(--osd-accent)"
+      />
+      {/* Sweep tip / minute hand stub */}
+      {f > 0.001 ? (
+        <>
+          <line
+            x1={cx}
+            y1={cy}
+            x2={tip.x}
+            y2={tip.y}
+            stroke="var(--osd-text)"
+            strokeWidth={3}
+            strokeLinecap="round"
+            opacity={0.85}
+          />
+          <circle cx={tip.x} cy={tip.y} r={10} fill="var(--osd-text)" />
+        </>
+      ) : null}
+      <circle cx={cx} cy={cy} r={10} fill="var(--osd-accent)" />
+    </svg>
+  );
+};
+
+const Countdown: Page = () => {
+  const reduced = usePrefersReducedMotion();
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [endsAt, setEndsAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  const running = startedAt !== null && endsAt !== null && now < endsAt;
+  const done =
+    startedAt !== null &&
+    endsAt !== null &&
+    (now >= endsAt || endsAt <= startedAt);
+
+  useEffect(() => {
+    if (startedAt === null || endsAt === null) return;
+    if (reduced) {
+      const id = window.setInterval(() => setNow(Date.now()), 1000);
+      return () => window.clearInterval(id);
+    }
+    let raf = 0;
+    const tick = () => {
+      setNow(Date.now());
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [startedAt, endsAt, reduced]);
+
+  const fraction =
+    startedAt === null || endsAt === null
+      ? 1
+      : endsAt <= startedAt
+        ? 0
+        : clamp01((endsAt - now) / (endsAt - startedAt));
+
+  const onStart = () => {
+    const t0 = Date.now();
+    const end = pragueSixPmTodayMs(t0);
+    setStartedAt(t0);
+    setEndsAt(end);
+    setNow(t0);
+  };
+
+  const onReset = () => {
+    setStartedAt(null);
+    setEndsAt(null);
+    setNow(Date.now());
+  };
+
+  const fade = (delayMs: number): CSSProperties =>
+    reduced
+      ? {}
+      : {
+          animation: 'pragueFadeUp 0.55s cubic-bezier(0,0,0.2,1) both',
+          animationDelay: `${delayMs}ms`,
+        };
+
+  return (
+    <div
+      style={{
+        ...canvas,
+        padding: pad,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Corners inset={14} />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '420px 1fr',
+          gap: 48,
+          flex: 1,
+          maxWidth: 1680,
+          minHeight: 0,
+          alignItems: 'center',
+        }}
+      >
+        <div>
+          <Eyebrow>time</Eyebrow>
+          <h2
+            style={{
+              fontFamily: 'var(--osd-font-display)',
+              fontSize: 72,
+              fontWeight: 800,
+              margin: '16px 0 0',
+              lineHeight: 1.05,
+              letterSpacing: '-0.02em',
+              ...fade(80),
+            }}
+          >
+            Until six.
+          </h2>
+          <p
+            style={{
+              fontSize: 28,
+              color: muted,
+              marginTop: 24,
+              lineHeight: 1.4,
+              ...fade(200),
+            }}
+          >
+            Sprint ends at 18:00 · Prague
+          </p>
+          <div
+            style={{
+              marginTop: 40,
+              ...fade(320),
+            }}
+          >
+            {startedAt === null ? (
+              <button
+                type="button"
+                onClick={onStart}
+                style={{
+                  fontFamily: mono,
+                  fontSize: 28,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: 'var(--osd-bg)',
+                  background: 'var(--osd-accent)',
+                  border: 'none',
+                  borderRadius: 14,
+                  padding: '22px 48px',
+                  cursor: 'pointer',
+                }}
+              >
+                Start
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onReset}
+                style={{
+                  fontFamily: mono,
+                  fontSize: 22,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: muted,
+                  background: 'transparent',
+                  border: `1px solid ${line}`,
+                  borderRadius: 14,
+                  padding: '18px 36px',
+                  cursor: 'pointer',
+                }}
+              >
+                Reset
+              </button>
+            )}
+          </div>
+          {done ? (
+            <p
+              style={{
+                fontFamily: mono,
+                fontSize: 32,
+                color: 'var(--osd-accent)',
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                marginTop: 36,
+              }}
+            >
+              Done
+            </p>
+          ) : null}
+        </div>
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            ...fade(160),
+          }}
+        >
+          <CountdownDial
+            fraction={startedAt === null ? 1 : fraction}
+            running={running}
+          />
+        </div>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
 export default [
   Opening,
   Agenda,
@@ -1523,4 +1896,5 @@ export default [
   Format,
   Scoring,
   CheckIn,
+  Countdown,
 ] satisfies Page[];
